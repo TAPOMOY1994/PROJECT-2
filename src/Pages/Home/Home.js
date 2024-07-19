@@ -1,6 +1,8 @@
 import { Button, MenuItem, TextField } from "@mui/material";
 import { useState } from "react";
 import { useHistory } from "react-router";
+import { auth, provider } from "../../firebase";
+import { signInWithPopup } from "firebase/auth";
 import ErrorMessage from "../../components/ErrorMessage/ErrorMessage";
 import Categories from "../../Data/Categories";
 import "./Home.css";
@@ -9,6 +11,7 @@ const Home = ({ name, setName, fetchQuestions }) => {
   const [category, setCategory] = useState("");
   const [difficulty, setDifficulty] = useState("");
   const [error, setError] = useState(false);
+  const [user, setUser] = useState(null);
 
   const history = useHistory();
 
@@ -23,17 +26,48 @@ const Home = ({ name, setName, fetchQuestions }) => {
     }
   };
 
+  const signInWithGoogle = () => {
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        setUser(result.user);
+        setName(result.user.displayName); // Set the name for quiz
+      })
+      .catch((error) => {
+        console.error("Error signing in with Google: ", error);
+        setError("Failed to sign in. Please try again.");
+      });
+  };
+
   return (
     <div className="content">
       <div className="settings">
         <span style={{ fontSize: 30 }}>Quiz Settings</span>
         <div className="settings__select">
-          {error && <ErrorMessage>Please Fill all the feilds</ErrorMessage>}
+          {error && <ErrorMessage>Please Fill all the fields</ErrorMessage>}
+          {user ? (
+            <div className="user-info">
+              <img src={user.photoURL} alt={user.displayName} className="user-photo" />
+              <h2>{user.displayName}</h2>
+              <p>{user.email}</p>
+            </div>
+          ) : (
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              onClick={signInWithGoogle}
+              style={{ marginBottom: 20 }}
+            >
+              Sign in with Google
+            </Button>
+          )}
           <TextField
             style={{ marginBottom: 25 }}
             label="Enter Your Name"
             variant="outlined"
             onChange={(e) => setName(e.target.value)}
+            value={name}
+            disabled={!!user} // Disable if user is logged in
           />
           <TextField
             select
