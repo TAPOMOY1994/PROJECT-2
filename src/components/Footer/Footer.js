@@ -8,10 +8,8 @@ return (
     marginBottom: 10,
   }}>
 
-  Made with love by {" "}
+  Made with love by {"Tapomoy Das "}
 
-<a href="https://www.youtube.com/roadsidecoder"
-style={{cursor:"pointer"}} >Roadside Coder</a>
 
 
 
